@@ -1,0 +1,21 @@
+state,fame2_subsidy_per_ev_inr,state_subsidy_per_ev_inr,gst_waiver_pct,road_tax_waiver_pct,accelerated_depreciation_pct,solar_rpm_tariff_inr_kwh,viability_gap_funding_pct,charging_infra_subsidy_pct,green_energy_certificate_inr_mwh,regulatory_ease_score
+Maharashtra,15000,25000,5,100,40,3.2,20,30,850,7.5
+Gujarat,15000,20000,5,100,40,2.8,25,35,820,8.2
+Karnataka,15000,18000,5,50,40,3.0,22,32,810,7.8
+Tamil Nadu,15000,15000,5,100,40,3.1,20,28,800,8.0
+Rajasthan,15000,10000,5,0,40,2.5,30,40,780,6.5
+Uttar Pradesh,15000,5000,5,0,40,2.9,15,20,740,4.8
+Telangana,15000,22000,5,100,40,2.9,22,30,830,7.2
+Andhra Pradesh,15000,12000,5,50,40,2.8,20,28,790,6.8
+Madhya Pradesh,15000,8000,5,0,40,2.7,18,22,760,5.2
+Haryana,15000,20000,5,100,40,3.0,20,30,840,7.0
+Punjab,15000,12000,5,100,40,2.8,18,25,800,6.5
+Delhi,15000,30000,5,100,40,3.5,10,25,900,9.0
+Himachal Pradesh,15000,12000,5,100,40,2.6,25,35,780,6.8
+Kerala,15000,15000,5,100,40,2.7,20,30,790,7.2
+Odisha,15000,6000,5,0,40,2.7,22,28,760,5.0
+West Bengal,15000,8000,5,0,40,2.8,18,20,770,5.5
+Chhattisgarh,15000,5000,5,0,40,2.5,20,25,750,4.5
+Jharkhand,15000,4000,5,0,40,2.6,18,22,740,4.2
+Bihar,15000,3000,5,0,40,2.5,15,18,720,3.8
+Assam,15000,4000,5,0,40,2.6,18,20,730,4.0
