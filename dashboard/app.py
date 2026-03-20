@@ -138,6 +138,12 @@ with st.sidebar:
                                  "Demand Forecast", "State Comparison"])
 
     st.markdown("---")
+    
+    # Pre-compute data for use in Export and Main Pages
+    sd, pi, demand_df, demand_base, base_fin, policy_fin, scores_df, grid_df = compute_all(
+        scenario, w_fin, w_dem, w_sol, w_pol, w_urb
+    )
+
     st.markdown("#### 📥 Export Data")
     if "excel_data" not in st.session_state:
         st.session_state.excel_data = None
@@ -163,10 +169,6 @@ with st.sidebar:
             file_name=f"India_EV_Investment_Report_{scenario}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
-sd, pi, demand_df, demand_base, base_fin, policy_fin, scores_df, grid_df = compute_all(
-    scenario, w_fin, w_dem, w_sol, w_pol, w_urb
-)
 
 # ═════════════════════════════════════════════════════════════════════════════
 # PAGE 1: OVERVIEW
