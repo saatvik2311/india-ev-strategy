@@ -60,6 +60,41 @@ def load_data():
     return sd, pi
 
 @st.cache_data
+def load_and_vectorize_docs():
+    import glob
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    docs_dir = DATA_DIR.parent / "docs"
+    docs_files = glob.glob(str(docs_dir / "*.md"))
+    
+    docs_texts = []
+    docs_names = []
+    for f in docs_files:
+        with open(f, "r", encoding="utf-8") as file:
+            docs_texts.append(file.read())
+            docs_names.append(Path(f).name)
+            
+    if not docs_texts:
+        return None, None, [], []
+        
+    vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = vectorizer.fit_transform(docs_texts)
+    return vectorizer, tfidf_matrix, docs_texts, docs_names
+
+def retrieve_top_k(query, vectorizer, tfidf_matrix, docs_texts, docs_names, k=2):
+    if not vectorizer:
+        return ""
+    from sklearn.metrics.pairwise import cosine_similarity
+    query_vec = vectorizer.transform([query])
+    sim = cosine_similarity(query_vec, tfidf_matrix).flatten()
+    top_k_idx = sim.argsort()[-k:][::-1]
+    
+    context = ""
+    for idx in top_k_idx:
+        if sim[idx] > 0.05:  # Only include if somewhat relevant
+            context += f"\n\n--- Deep Dive Context ({docs_names[idx]}) ---\n{docs_texts[idx]}\n"
+    return context.strip()
+
+@st.cache_data
 def compute_all(scenario: str, w_financial: float, w_demand: float,
                 w_solar: float, w_policy: float, w_urban: float):
     sd, pi   = load_data()
@@ -102,6 +137,33 @@ with st.sidebar:
     page = st.radio("📄 Page", ["Overview", "Financial Deep Dive",
                                  "Demand Forecast", "State Comparison"])
 
+    st.markdown("---")
+    st.markdown("#### 📥 Export Data")
+    if "excel_data" not in st.session_state:
+        st.session_state.excel_data = None
+
+    if st.button("Generate Excel Report"):
+        with st.spinner("Running Monte Carlo + Compiling Report..."):
+            mc_df = run_monte_carlo(sd, n=1000)
+            scenarios_data = {}
+            for s in ["Low", "Base", "High"]:
+                d_df = apply_scenario(demand_base, s)
+                s_df = compute_scores(sd, base_fin, d_df)
+                scenarios_data[s] = s_df[["state", "irr_pct", "demand_mwh_2029"]]
+            
+            from reports.generate_report import generate_excel_report
+            st.session_state.excel_data = generate_excel_report(
+                scores_df, base_fin, policy_fin, mc_df, scenarios_data, in_memory=True
+            )
+
+    if st.session_state.excel_data:
+        st.download_button(
+            label="Click here to Download .xlsx",
+            data=st.session_state.excel_data,
+            file_name=f"India_EV_Investment_Report_{scenario}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
 sd, pi, demand_df, demand_base, base_fin, policy_fin, scores_df, grid_df = compute_all(
     scenario, w_fin, w_dem, w_sol, w_pol, w_urb
 )
@@ -120,6 +182,75 @@ if page == "Overview":
     col2.metric("📈 Best IRR",         f"{base_fin['irr_pct'].max():.1f}%", f"{base_fin.sort_values('irr_pct', ascending=False).iloc[0]['state']}")
     col3.metric("⚡ Total EV Demand",  f"{demand_df['demand_mwh_2029'].sum()/1e6:.1f} TWh/yr", "2029 Projected")
     col4.metric("🏆 Tier 1 States",    str(len(scores_df[scores_df["tier"] == "Tier 1 (Premium)"])), "Premium investment")
+
+    # RAG Assistant: AI Technical Advisor
+    st.markdown("---")
+    st.subheader("🧠 AI Technical Consultant")
+    st.caption("Ask our McKinsey-trained Oracle any question about this model's math, datasets, or the current state rankings.")
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+        
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+            
+    groq_api_key = st.secrets.get("GROQ_API_KEY", "")
+    if not groq_api_key or groq_api_key == "paste_your_key_here":
+        st.warning("⚠️ GROQ_API_KEY not found in Streamlit secrets.")
+    else:
+        if prompt_text := st.chat_input("Why is Delhi ranked so high? Or how is IRR compounded here?"):
+            st.session_state.messages.append({"role": "user", "content": prompt_text})
+            with st.chat_message("user"):
+                st.markdown(prompt_text)
+
+            with st.chat_message("assistant"):
+                with st.spinner("Consulting methodology base..."):
+                    try:
+                        from groq import Groq
+                        client = Groq(api_key=groq_api_key)
+                        
+                        # Load global baseline and dynamic TF-IDF context
+                        try:
+                            with open(DATA_DIR.parent / "Methodology_Context.md", "r") as f:
+                                base_context = f.read()
+                        except:
+                            base_context = "Baseline documentation missing."
+                            
+                        vec, mat, txts, names = load_and_vectorize_docs()
+                        deep_dive_context = retrieve_top_k(prompt_text, vec, mat, txts, names, k=2)
+                        
+                        context_docs = f"{base_context}\n\n{deep_dive_context}"
+                            
+                        top_3 = scores_df.head(3).to_dict(orient="records")
+                        sys_prompt = f"""
+Act as a Senior Partner at McKinsey specializing in Energy & Infrastructure. You built this investment screening model.
+You are extremely technical, sharp, and concise. Use bold text for key terms.
+Answer the user's questions based strictly on the following project context and formulas:
+
+PROJECT METHODOLOGY KNOWLEDGE BASE:
+{context_docs}
+
+CURRENT APP STATE:
+Scenario: {scenario}
+Weights: Financial: {w_fin}, Demand: {w_dem}, Solar: {w_sol}, Policy: {w_pol}, Urbanization: {w_urb}.
+Current Top 3 States: {top_3}
+"""
+                        api_messages = [{"role": "system", "content": sys_prompt}]
+                        for m in st.session_state.messages:
+                            api_messages.append({"role": m["role"], "content": m["content"]})
+                            
+                        response = client.chat.completions.create(
+                            model="llama-3.3-70b-versatile",
+                            messages=api_messages,
+                            temperature=0.2,
+                            max_tokens=800
+                        )
+                        reply = response.choices[0].message.content
+                        st.markdown(reply)
+                        st.session_state.messages.append({"role": "assistant", "content": reply})
+                    except Exception as e:
+                        st.error(f"AI Chat failed: {str(e)}")
 
     st.markdown("---")
 

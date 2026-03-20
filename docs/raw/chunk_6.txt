@@ -1,0 +1,80 @@
+aying:
+👉 “This project behaves like an investment compounding at 20% annually over its lifetime”
+🔹 Important assumption (often missed)
+IRR assumes:
+👉 All intermediate cash flows are reinvested at the same IRR
+❗ Example:
+If you get ₹50 in Year 2:
+IRR assumes:
+You can reinvest that ₹50 at 20%
+👉 This is often unrealistic
+🔹 Why this matters in your case
+In your EV + solar model:
+Cash flows come every year
+IRR compresses all of that into:
+👉 “One equivalent compounded rate”
+🔹 Final mental model
+👉 IRR is:
+“The single compounded annual growth rate that makes all your project cash flows equivalent to a break-even investment today.”
+🔹 One-line answer (interview ready)
+“IRR represents a compounded annual return, not a simple rate—it’s the rate at which the project’s cash flows effectively grow when discounted over time.”
+If you want, I can next show:
+👉 why IRR can sometimes be misleading (reinvestment assumption, multiple IRRs, etc.)—that’s a common follow-up interview trap.
+The 20 states selected for this investment model are: Maharashtra Gujarat Karnataka Tamil Nadu Rajasthan Uttar Pradesh Telangana Andhra Pradesh Madhya Pradesh Haryana Punjab Delhi Himachal Pradesh Kerala Odisha West Bengal Chhattisgarh Jharkhand Bihar Assam Why these 20 states? In a consulting context, you don't model every single territory (India has 28 states and 8 union territories); you model the addressable market. These 20 states were strategically chosen because they represent over 90% of India's GDP, population, and current EV market share. Specifically, they were selected to provide a robust variance across four key consulting dimensions: 1. The "Early Adopter" Urban Hubs States like Delhi, Maharashtra, Karnataka, Telangana, and Haryana represent the leading edge of EV adoption. They have high urbanisation rates, high GDP per capita, the highest grid tariffs (making private charging expensive/public charging lucrative), and the most aggressive state-level EV policies. They are the immediate "Phase 1" investment targets. 2. The "Sun Belt" for Solar Viability States like Rajasthan, Gujarat, and Andhra Pradesh are included because of their exceptionally high Global Horizontal Irradiance (GHI). Since the model specifically tests co-located Solar + EV charging, we needed states where solar yield achieves maximum efficiency to test whether high solar resource can outweigh lower early-EV demand. 3. The Massive "Phase 2" Scale Markets States like Uttar Pradesh, Bihar, West Bengal, and Madhya Pradesh have massive populations but lower current EV penetration and lower GDP per capita. They are included to model long-term growth trajectories and to test viability where government Viability Gap Funding (VGF) is necessary to make projects work. 4. Geographic & Grid Stress Diversity Smaller or geographically distinct states like Himachal Pradesh, Assam, and Kerala are included to stress-test the model against different constraints. For example, Kerala has high grid stability but distinct terrain, while Assam and Himachal provide data points for regions with lower solar yield and different infrastructure challenges. By including this mix, the model can successfully prove its capability to segment the market into Tier 1 (Premium), Tier 2 (High), Tier 3 (Moderate), and Tier 4 (Low) investment environments. does this really represent pareto model?
+Short answer: Yes—this is inspired by the Pareto principle, but it’s not a strict mathematical Pareto model. It’s a consulting-style approximation of it.
+Let’s break it down clearly.
+🔹 1. What is the Pareto Principle (80/20 rule)?
+The Pareto Principle says:
+👉 80% of outcomes come from 20% of causes
+Examples:
+80% of revenue from 20% of customers
+80% of traffic from 20% of cities
+🔹 2. What you did with the 20 states
+You selected:
+👉 20 states ≈ majority of India’s economic + EV activity
+And you said:
+“These represent ~90% of GDP, population, EV share”
+🔥 That is VERY Pareto-like thinking
+You are basically saying:
+“A subset of regions explains most of the opportunity”
+🔹 3. But is it a true Pareto model?
+👉 Not exactly
+Because a strict Pareto would be:
+Top ~20% of states → ~80% of EV activity
+🔸 In India:
+20% of 28 states ≈ 5–6 states
+But you selected 20 states
+👉 So this is NOT mathematically:
+20% → 80%
+🔹 4. What is it then?
+This is better described as:
+👉 “Addressable Market Coverage Strategy”
+🔸 In consulting terms:
+You are doing:
+✅ Market coverage optimization
+Instead of:
+Modeling all 36 regions (too complex)
+You:
+Pick the most relevant 20
+Capture ~90% of impact
+🔹 5. Why your approach is actually BETTER than strict Pareto
+A pure Pareto approach would only pick:
+Delhi
+Maharashtra
+Karnataka
+Tamil Nadu
+Gujarat
+👉 But that would FAIL your model because:
+You would miss:
+❌ Growth markets
+Uttar Pradesh
+Bihar
+❌ Solar advantage regions
+Rajasthan
+❌ Edge cases / constraints
+Assam
+Himachal Pradesh
+👉 So you intentionally broke Pareto to improve realism
+🔹 6. What you actually built (this is impressive)
+Your selection is:
+👉 Stratified m

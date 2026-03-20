@@ -1,0 +1,158 @@
+our policy logic.
+Without subsidy:
+Year 0: -45 crore
+IRR ≈ 12%
+With subsidy:
+Year 0: -35 crore  (cost reduced)
+🔸 New IRR:
+👉 IRR jumps to ~17%
+🔥 Business insight:
+“Subsidies don’t increase revenue—they reduce initial cost, which boosts IRR.”
+🔹 Case 7: Why bisection is perfect here
+In most real projects:
+👉 Cash flow pattern is:
+- + + + + + ...
+👉 Only one sign change → one IRR
+🔸 That guarantees:
+NPV curve is smooth
+Only one crossing point
+👉 Bisection = safe + reliable
+🔹 Final mental summary
+🔹 Ultimate intuition
+👉 You are doing this:
+“Find the interest rate where the project stops being good and starts being bad.”
+That boundary = IRR
+🔹 Interview killer line
+“The bisection method works because NPV is a monotonic decreasing function of the discount rate in standard cash flow structures, allowing us to reliably converge to the unique rate where NPV equals zero.”
+If you want next level:
+I can show you:
+exact Python bisection code
+how to detect “no IRR” cases
+or how Monte Carlo interacts with IRR distributions
+That’s usually what top-tier interviews push into.
+The Business Inference: If State A has an average IRR of 20% but a P10 of negative 5%, and State B has an average IRR of 18% but a P10 of 12%... State B is vastly superior for a risk-averse institutional investor. We have quantified the risk." I think I need to understand the IRR thing again what can I infer from "If State A has an average IRR of 20%"
+Good instinct—this is exactly where people think they understand IRR but actually don’t. Let’s rebuild the intuition properly.
+🔹 First: What does “average IRR of 20%” mean?
+👉 It does NOT mean:
+❌ You will earn 20% every year
+❌ The project is “safe”
+❌ Returns are fixed
+✅ It means:
+“Across many simulated scenarios, the typical return of this project is about 20% per year.”
+🔹 Where does “average IRR” come from?
+From your Monte Carlo simulation:
+You ran:
+1000 simulations
+Each simulation gives a different IRR:
+5%, 12%, 18%, 25%, -3%, 30%, ...
+🔸 Then you compute:
+Average IRR = mean of all these values
+So:
+Average IRR ≈ 20%
+🔹 What can you infer from “20% IRR”?
+🧠 Base meaning:
+“If things go normally, this project behaves like a 20% return investment.”
+🔸 Compare to alternatives:
+👉 Sounds amazing, right?
+🔹 But here’s the trap (VERY IMPORTANT)
+👉 Average hides risk
+🔸 Example distribution:
+IRRs from simulation:
+-10%, -5%, 0%, 10%, 20%, 30%, 40%, 50%
+Average ≈ 20%
+❗ Problem:
+Some outcomes are negative
+Some are very high
+👉 That’s risky
+🔹 Enter P10 (this is the real decision tool)
+P10 = “worst-case zone”
+🔸 State A:
+Average IRR = 20%
+P10 = -5%
+👉 Meaning:
+“In 10% of cases, you actually lose money”
+🔹 State B:
+Average IRR = 18%
+P10 = 12%
+👉 Meaning:
+“Even in bad scenarios, you still make 12% profit”
+🔥 Now the key insight
+🧠 Compare both:
+💼 What an investor sees:
+State A:
+High reward
+But chance of losing money
+State B:
+Slightly lower reward
+But very safe
+🔹 Why risk-averse investors choose B
+Institutional investors (like pension funds):
+👉 Care more about not losing money than maximizing returns
+🔥 Their mindset:
+“I’d rather earn 18% safely than risk losing capital chasing 20%.”
+🔹 What “average IRR = 20%” really tells you
+It tells you only ONE thing:
+👉 The center of the distribution
+❗ It does NOT tell you:
+Risk
+Volatility
+Downside
+🔹 Better interpretation framework
+When you hear:
+“Average IRR = 20%”
+You should immediately ask:
+What is P10? (worst case)
+What is P50? (median)
+What is P90? (best case)
+🔹 Visual intuition
+State A:
+Wide spread:
+-10%   0%   20%   50%
+State B:
+Tight spread:
+12%   15%   18%   22%
+👉 Same average-ish, completely different risk
+🔹 Final mental model
+👉 Average IRR = reward
+👉 P10 = risk
+🔹 One-line takeaway
+“An average IRR of 20% means the project is highly profitable on expectation, but without understanding the distribution (like P10), it tells you nothing about the risk of losing capital.”
+If you want next level clarity, I can:
+show how these IRR distributions actually look as graphs
+or connect this to real investing decisions (VC vs infra vs hedge funds)
+20 percent per year? simple or compounded?
+Great question—and this is a very important distinction.
+🔹 Short answer
+👉 IRR = compounded annual return
+NOT simple.
+🔹 What does “20% IRR” actually mean?
+It means:
+“Your investment is effectively growing at 20% per year, compounded annually.”
+🔹 Compounding vs Simple (quick intuition)
+❌ Simple 20% return:
+Every year you earn 20% of original money:
+100 → 120 → 140 → 160 → 180
+👉 Linear growth
+✅ IRR (compounded 20%):
+Each year builds on the previous year:
+Example:
+👉 Growth accelerates
+🔹 Why IRR is always compounded
+Because IRR comes from this equation:
+👉 That (1 + r)^t is compound discounting
+🔹 But here’s the subtle (VERY IMPORTANT) truth
+👉 IRR is a “mathematical equivalent rate”
+⚠️ Meaning:
+Your actual cash flows may look like:
+-100 (today)
++10
++15
++50
++80
+👉 Not smooth at all
+But IRR says:
+“This messy cash flow is equivalent to a smooth 20% compounded return”
+🔹 Real-world interpretation
+When you say:
+“Average IRR = 20%”
+You are s

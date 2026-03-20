@@ -12,7 +12,7 @@ import matplotlib.patches as mpatches
 from matplotlib.ticker import FuncFormatter
 from pathlib import Path
 
-CHART_DIR = Path(__file__).parent.parent / "outputs" / "charts"
+CHART_DIR = Path(os.environ.get("EV_CHART_DIR", Path(__file__).parent.parent / "outputs" / "charts"))
 CHART_DIR.mkdir(parents=True, exist_ok=True)
 
 PALETTE = {

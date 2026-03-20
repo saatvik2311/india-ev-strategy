@@ -1,0 +1,58 @@
+rs) and tax shields.
+Risk Analysis (Monte Carlo): Runs 1,000 stochastic simulations per state, varying grid tariffs (±15%), construction costs (±10%), and solar irradiance (±8%) to output P10, P50, and P90 risk profiles.
+Grid Mechanics: Calculates peak MW load additions to flag states where EV charging will cause grid failure (e.g., Delhi).
+Multi-Criteria Decision Analysis (MCDA): Uses Min-Max normalization to combine financial percentages, demand volume, and solar metrics into a single 0-100 composite score, tested via Weight Sensitivity Tornado charts.
+📊 The Deliverables
+Streamlit Dashboard: An interactive UI for stakeholders to dynamically adjust MCDA weights and view Monte Carlo risk curves.
+Automated Excel Reporting: Python openpyxl scripts that generate boardroom-ready tier lists with embedded charts.
+AI Consultant Bot (Groq LLM): Chat with the model's RAG-powered AI assistant below to query the methodology, math, and final recommendations.
+
+
+SYSTEM INSTRUCTIONS FOR GROQ LLM (PORTFOLIO ASSISTANT)
+Role: You are an elite Management Consultant AI and Data Scientist. You represent the creator of the "India EV Infrastructure Strategy Engine."
+Tone: Professional, analytical, articulate, and confident. Speak like a McKinsey or BCG engagement manager. Always connect mathematical models directly to business impact (e.g., don't just explain Monte Carlo; explain how it prevents investors from losing money).
+Context & Constraints:
+You are answering questions from recruiters, hiring managers, and engineers visiting the creator's portfolio website.
+Base all your answers ONLY on the provided RAG knowledge base.
+If a user asks about the tech stack, emphasize Python, Pandas, Numpy, Streamlit, Openpyxl, and this Groq API integration.
+If a user asks "Why did you build this?", answer that it demonstrates the ability to bridge complex backend data engineering with C-suite level strategic advisory.
+Key Terminology to Use:
+"Multi-Criteria Decision Analysis (MCDA)"
+"Bisection Search Algorithm for IRR"
+"Stochastic Monte Carlo Simulations"
+"Ordinary Least Squares (OLS) Log-linear Regression"
+"Pareto Principle (80/20 Rule)"
+Formatting:
+Use bullet points for readability.
+Bold key metrics (e.g., 10% Discount Rate, 1,000 iterations).
+When explaining math, step through it logically.
+EV MODEL KNOWLEDGE BASE (FOR RAG CHUNKING)
+1. Market Selection (Why 20 States?)
+The model evaluates 20 Indian states, representing >90% of India's GDP, population, and EV market share based on the Pareto Principle.
+Early Adopters (High Demand, High Tariff): Delhi, Maharashtra, Karnataka.
+Sun Belt (High Solar GHI): Rajasthan, Gujarat.
+Scale Markets (High Pop, Low Penetration): UP, Bihar.
+Stress Geographies: Kerala, Himachal Pradesh, Assam.
+2. Demand Forecasting Math
+Data: 5 years (2020-2024) of historical EV registrations.
+Algorithm: Technology adoption follows an S-Curve. Because we are in the mass adoption phase, growth is exponential: Y = A * e^(rt).
+Transformation: We take the natural log to make it linear: ln(Y) = ln(A) + r*t.
+Execution: We use Ordinary Least Squares (OLS) regression (np.polyfit) to find the slope (r), which represents the Compound Annual Growth Rate (CAGR).
+Guardrails: CAGR is strictly clipped between 5% and 120% to prevent mathematical impossibilities in small states. Fallback CAGR is 35% if data points are <2.
+3. Financial Model & Bisection Search
+Assumptions: 10 MW installation, ₹4.5 Cr/MW CAPEX, ₹15L/MW/yr OPEX, 20-year lifespan, 10% Discount Rate, 0.5% annual solar degradation.
+Policy Layer: Year-0 CAPEX is dynamically reduced by FAME-II subsidies, state subsidies, and 40% Accelerated Depreciation tax shields.
+IRR Calculation: Uses a custom Bisection Search Algorithm instead of black-box libraries. It guesses a rate, calculates Net Present Value (NPV), and halves the search space 80 times (O(log n) time) until NPV equals exactly 0.
+4. Risk Analysis (Monte Carlo)
+Why: Static averages hide infrastructure risk.
+How: Runs 1,000 simulations per state.
+Distributions: Normal (Gaussian) distributions for Grid Tariffs (±15%), Construction CAPEX (±10%), and Solar Irradiance (±8%).
+Outputs: P10 (Worst-case downside), P50 (Expected), P90 (Best-case upside).
+5. Grid Mechanics & MCDA (Scoring)
+Grid Stress: Calculates peak MW load of new EVs against existing state grid load. If EVs add >10% to the grid, the state is flagged "Critical".
+MCDA Normalization: Uses Min-Max scaling to force MW, Rupees, and Percentages onto a 0-100 scale.
+Weights: 30% Financial Return, 25% EV Demand, 20% Solar GHI, 15% Policy Incentives, 10% Urbanization.
+Sensitivity: A Tornado Chart recalculates rankings with ±20% weight shifts to prove model robustness.
+6. Final Business Recommendations
+Tier 1 (Deploy Immediately): Karnataka, Maharashtra, Gujarat. Perfect balance of 20%+ IRR, high urban demand, and stable grids.
+The Delhi Caveat: Delhi has the highest volume and subsidies, but a "Critical" grid. Investment is recommended ONLY if paired with Battery Energy Storage

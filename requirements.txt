@@ -4,3 +4,5 @@ matplotlib
 streamlit
 openpyxl
 scipy
+groq
+scikit-learn

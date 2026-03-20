@@ -175,7 +175,7 @@ def _write_sheet_scenarios(wb, scenarios_data: dict):
 
 
 def generate_excel_report(scores_df, base_fin, policy_fin, mc_df,
-                           scenarios_data: dict):
+                           scenarios_data: dict, in_memory=False):
     print("\n── Generating Excel report ─────────────────────────────────────────")
     wb = Workbook()
     wb.remove(wb.active)  # remove default blank sheet
@@ -185,6 +185,13 @@ def generate_excel_report(scores_df, base_fin, policy_fin, mc_df,
     _write_sheet_financials(wb, base_fin, policy_fin, mc_df)
     _write_sheet_scenarios(wb, scenarios_data)
 
-    wb.save(REPORT_PATH)
-    print(f"  ✓  India_EV_Investment_Report.xlsx → {REPORT_PATH}")
-    return REPORT_PATH
+    if in_memory:
+        import io
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+        return output.read()
+    else:
+        wb.save(REPORT_PATH)
+        print(f"  ✓  India_EV_Investment_Report.xlsx → {REPORT_PATH}")
+        return REPORT_PATH

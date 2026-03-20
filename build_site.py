@@ -11,22 +11,43 @@ import pandas as pd
 ROOT      = Path(__file__).parent
 CHART_DIR = ROOT / "outputs" / "charts"
 OUT_FILE  = ROOT / "index.html"
+import sys, matplotlib, os
+matplotlib.use("Agg")
 
-import sys
+os.environ["EV_CHART_DIR"] = "/tmp/ev_charts"
+
 sys.path.insert(0, str(ROOT))
-from models.financial import compute_base_financials
-from models.demand    import build_demand_forecast
+from models.financial import compute_base_financials, run_monte_carlo, compute_policy_adjusted_financials
+from models.demand    import build_demand_forecast, apply_scenario
+from models.scoring   import compute_scores, weight_sensitivity
+from models.grid      import compute_grid_stress
+from visualisations.charts import generate_all_charts
 
-state_df  = pd.read_csv(ROOT / "data" / "state_data.csv")
+CHART_DIR = Path("/tmp/ev_charts")
 
-# Load scoring results (has composite_score, irr_pct, tier, etc.)
-analysis  = pd.read_csv(ROOT / "outputs" / "full_analysis.csv")
-mc_res    = pd.read_csv(ROOT / "outputs" / "monte_carlo_results.csv")
-grid_res  = pd.read_csv(ROOT / "outputs" / "grid_analysis.csv")
+# Load raw data
+state_df = pd.read_csv(ROOT / "data" / "state_data.csv")
+policy_df = pd.read_csv(ROOT / "data" / "policy_incentives.csv")
 
-# Get NPV + payback from financial model
-fin       = compute_base_financials(state_df)
-analysis  = analysis.merge(fin[["state","npv_cr","payback_yrs"]], on="state", how="left")
+# Compute everything live (mirrors main.py pipeline)
+demand_base = build_demand_forecast()
+demand_df   = apply_scenario(demand_base, "Base")
+fin         = compute_base_financials(state_df)
+weights     = dict(financial=0.30, demand=0.25, solar=0.20, policy=0.15, urban=0.10)
+scores_df   = compute_scores(state_df, fin, demand_df, weights=weights)
+grid_df     = compute_grid_stress(state_df, demand_df)
+mc_res      = run_monte_carlo(state_df, n=1000)
+policy_fin  = compute_policy_adjusted_financials(state_df, policy_df)
+sensitivity_df = weight_sensitivity(state_df, fin, demand_df, top_n=5)
+
+# Generate charts to /tmp/ev_charts
+generate_all_charts(
+    scores_df=scores_df, state_df=state_df, base_fin=fin, mc_df=mc_res,
+    demand_df=demand_base, policy_fin=policy_fin, sensitivity_df=sensitivity_df
+)
+
+# Merge into one analysis df
+analysis = scores_df.merge(fin[["state","npv_cr","payback_yrs"]], on="state", how="left")
 
 
 top5    = analysis.sort_values("composite_score", ascending=False).head(5)
@@ -74,6 +95,26 @@ def ranking_rows():
           <td class="metric">₹{r['npv_cr']:.0f} Cr</td>
           <td class="metric">{r.get('payback_yrs','—')} yrs</td>
           <td class="metric range">{p10} – {p90}</td>
+        </tr>""")
+    return "\n".join(rows)
+
+def policy_table_rows():
+    """Top-10 states by state_subsidy_per_ev_inr from already-loaded policy_df"""
+    pi = policy_df.sort_values("state_subsidy_per_ev_inr", ascending=False).head(10)
+    rows = []
+    for _, r in pi.iterrows():
+        total = r["fame2_subsidy_per_ev_inr"] + r["state_subsidy_per_ev_inr"]
+        rows.append(f"""
+        <tr>
+          <td class="state-name">{r['state']}</td>
+          <td class="metric">₹{r['fame2_subsidy_per_ev_inr']//1000:.0f}K</td>
+          <td class="metric">₹{r['state_subsidy_per_ev_inr']//1000:.0f}K</td>
+          <td class="metric">₹{total//1000:.0f}K</td>
+          <td class="metric">{r['gst_waiver_pct']:.0f}%</td>
+          <td class="metric">{r['road_tax_waiver_pct']:.0f}%</td>
+          <td class="metric">{r['accelerated_depreciation_pct']:.0f}%</td>
+          <td class="metric">{r['viability_gap_funding_pct']:.0f}%</td>
+          <td class="metric">{r['regulatory_ease_score']:.1f}/10</td>
         </tr>""")
     return "\n".join(rows)
 
@@ -298,6 +339,72 @@ html = f"""<!DOCTYPE html>
   .reco-card.highlight-card h3, .reco-card.highlight-card p {{ color: rgba(255,255,255,0.9); }}
   .reco-card.highlight-card .metric-tag {{ background: rgba(255,255,255,0.12); color: #fff; }}
 
+  /* POLICY SECTION */
+  .policy-legend {{ display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 32px; }}
+  .policy-legend span {{ font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }}
+  .policy-legend i {{ display:inline-block; width:12px; height:12px; border-radius:2px; }}
+
+  /* Subsidy Stack Flowchart */
+  .subsidy-flow {{
+    display: flex; align-items: stretch; gap: 0; margin: 40px 0 48px;
+    overflow-x: auto; padding-bottom: 8px;
+  }}
+  .sf-block {{
+    flex: 1; min-width: 150px; display: flex; flex-direction: column;
+    align-items: center; position: relative;
+  }}
+  .sf-block:not(:last-child)::after {{
+    content: '\2192'; position: absolute; right: -14px; top: 42px;
+    font-size: 22px; color: var(--accent); font-weight: 700; z-index: 1;
+  }}
+  .sf-box {{
+    width: 100%; padding: 18px 14px; border-radius: 12px;
+    text-align: center; color: #fff;
+  }}
+  .sf-box.gross  {{ background: #C0392B; }}
+  .sf-box.fame   {{ background: #2471A3; }}
+  .sf-box.state  {{ background: #1E7A4A; }}
+  .sf-box.dep    {{ background: #8E44AD; }}
+  .sf-box.result {{ background: var(--navy); }}
+  .sf-box .sf-label {{ font-size: 11px; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }}
+  .sf-box .sf-val  {{ font-size: 22px; font-weight: 800; line-height: 1; }}
+  .sf-box .sf-sub  {{ font-size: 11px; opacity: 0.75; margin-top: 5px; line-height: 1.4; }}
+  .sf-arrow {{ color: var(--accent); font-size: 16px; margin: 6px 0 4px; font-weight: 700; }}
+  .sf-note {{ font-size: 11px; color: var(--muted); text-align: center; margin-top: 8px; line-height: 1.4; padding: 0 4px; }}
+
+  /* Central policy cards */
+  .cpolicy-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 20px; margin-bottom: 48px; }}
+  .cpolicy-card {{
+    border-radius: 12px; padding: 24px 20px;
+    border: 1px solid var(--border); background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }}
+  .cpolicy-card .cp-icon {{ font-size: 26px; margin-bottom: 10px; }}
+  .cpolicy-card .cp-tag {{
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+  }}
+  .cpolicy-card h4 {{ font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }}
+  .cpolicy-card p {{ font-size: 13px; color: var(--muted); line-height: 1.55; }}
+  .cpolicy-card .cp-val {{
+    display: inline-block; margin-top: 12px; background: var(--light);
+    color: var(--navy); font-size: 12px; font-weight: 700; padding: 3px 10px;
+    border-radius: 6px;
+  }}
+
+  /* Policy table */
+  .policy-table {{ width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 24px; }}
+  .policy-table thead th {{
+    background: #1a3a6e; color: #fff; padding: 10px 12px;
+    text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .3px;
+  }}
+  .policy-table thead th:first-child {{ text-align: left; border-radius: 8px 0 0 0; }}
+  .policy-table thead th:last-child {{ border-radius: 0 8px 0 0; }}
+  .policy-table tbody tr {{ border-bottom: 1px solid var(--border); transition: background .15s; }}
+  .policy-table tbody tr:hover {{ background: var(--light); }}
+  .policy-table td {{ padding: 11px 12px; text-align: center; }}
+  .policy-table td:first-child {{ text-align: left; font-weight: 700; color: var(--navy); }}
+
   /* SOURCES */
   .sources-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 32px; }}
   .source-item {{
@@ -335,6 +442,7 @@ html = f"""<!DOCTYPE html>
   <ul>
     <li><a href="#problem">Problem</a></li>
     <li><a href="#methodology">Methodology</a></li>
+    <li><a href="#policy">Policy</a></li>
     <li><a href="#results">Results</a></li>
     <li><a href="#recommendations">Recommendations</a></li>
     <li><a href="#sources">Sources</a></li>
@@ -443,6 +551,130 @@ html = f"""<!DOCTYPE html>
         <span class="pill">8 analytical charts</span>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- POLICY LANDSCAPE -->
+<section class="full" id="policy">
+  <div class="inner">
+    <div class="section-tag">Policy Landscape</div>
+    <h2 class="section-title">The incentive stack that makes projects viable</h2>
+    <p class="section-lead">India's EV and renewable policy architecture layers central government subsidies on top of state-level incentives — reducing effective CAPEX by 30–50% and transforming marginal projects into high-conviction investments. Here is how the stack works.</p>
+
+    <!-- Subsidy Stacking Flowchart -->
+    <p style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">Subsidy Stacking — 10 MW Installation (₹45 Cr Gross CAPEX)</p>
+    <div class="subsidy-flow">
+      <div class="sf-block">
+        <div class="sf-box gross">
+          <div class="sf-label">Gross CAPEX</div>
+          <div class="sf-val">₹45 Cr</div>
+          <div class="sf-sub">₹4.5 Cr/MW × 10 MW<br>before any incentives</div>
+        </div>
+        <div class="sf-note">Starting point:<br>market cost per MW</div>
+      </div>
+      <div class="sf-block">
+        <div class="sf-box fame">
+          <div class="sf-label">− FAME-II / PM E-DRIVE</div>
+          <div class="sf-val">−₹7.5 Cr</div>
+          <div class="sf-sub">₹15,000/EV × 50 EVs/MW<br>Central incentive (all states)</div>
+        </div>
+        <div class="sf-note">Ministry of Heavy Industries<br>uniform nationwide scheme</div>
+      </div>
+      <div class="sf-block">
+        <div class="sf-box state">
+          <div class="sf-label">− State Subsidy</div>
+          <div class="sf-val">−₹2–9 Cr</div>
+          <div class="sf-sub">₹3K–₹30K/EV × 50/MW<br>Varies heavily by state</div>
+        </div>
+        <div class="sf-note">Delhi tops at ₹30K/EV;<br>Bihar offers ₹3K/EV</div>
+      </div>
+      <div class="sf-block">
+        <div class="sf-box dep">
+          <div class="sf-label">− Acc. Depreciation</div>
+          <div class="sf-val">−₹5.4 Cr</div>
+          <div class="sf-sub">40% 1st-yr depreciation<br>× 30% effective tax rate</div>
+        </div>
+        <div class="sf-note">Available to all companies;<br>reduces tax liability</div>
+      </div>
+      <div class="sf-block">
+        <div class="sf-box result">
+          <div class="sf-label">✦ Effective CAPEX</div>
+          <div class="sf-val">₹23–30 Cr</div>
+          <div class="sf-sub">49–67% of gross cost<br>IRR uplift: +4–5%pt</div>
+        </div>
+        <div class="sf-note">Final blended cost after<br>all incentive layers</div>
+      </div>
+    </div>
+
+    <!-- Central Policy Cards -->
+    <p style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;">Central Government Policies</p>
+    <div class="cpolicy-grid">
+      <div class="cpolicy-card">
+        <div class="cp-icon">🚗</div>
+        <div class="cp-tag">FAME-II / PM E-DRIVE</div>
+        <h4>Faster Adoption of Electric Vehicles</h4>
+        <p>₹10,900 Cr scheme (FY2024–26) covering demand subsidy (₹15,000/EV) and infrastructure grants for 72,000 fast chargers. PM E-DRIVE mandates 1 charger per 25 km on national highways.</p>
+        <span class="cp-val">₹15,000/EV subsidy — all states</span>
+      </div>
+      <div class="cpolicy-card">
+        <div class="cp-icon">⚡</div>
+        <div class="cp-tag">Ministry of Power Guidelines 2024</div>
+        <h4>EV Charging Declared Unlicensed Activity</h4>
+        <p>MoP's Sept 2024 revised guidelines mandate EV chargers at workplaces, residential complexes, bus depots, and public hubs. Interoperability required via OCPP/OCPI open protocols. Eliminates licensing friction for CPOs.</p>
+        <span class="cp-val">Operational barrier removed</span>
+      </div>
+      <div class="cpolicy-card">
+        <div class="cp-icon">🔋</div>
+        <div class="cp-tag">PLI — Advanced Cell Chemistry</div>
+        <h4>Production Linked Incentive for Batteries</h4>
+        <p>₹18,100 Cr PLI scheme to build domestic battery manufacturing capacity (50 GWh target). Reduces import dependency and lowers future battery replacement costs — improving long-term project economics.</p>
+        <span class="cp-val">₹18,100 Cr over 5 years</span>
+      </div>
+      <div class="cpolicy-card">
+        <div class="cp-icon">🏛️</div>
+        <div class="cp-tag">GST Structure</div>
+        <h4>5% GST on EVs vs 28% on ICE Vehicles</h4>
+        <p>EV purchase taxed at 5% vs. 28% + cess for petrol/diesel vehicles. EV charging services at 18% GST — several states additionally waive this component for public charging, lowering operational costs for CPOs.</p>
+        <span class="cp-val">5% purchase GST (national)</span>
+      </div>
+      <div class="cpolicy-card">
+        <div class="cp-icon">📉</div>
+        <div class="cp-tag">Accelerated Depreciation</div>
+        <h4>40% First-Year Depreciation on EV Charging Equipment</h4>
+        <p>Companies installing EV charging infrastructure can claim 40% depreciation in year 1 under the Income Tax Act. At a 30% effective corporate tax rate this generates a first-year tax shield of ₹5.4 Cr on a 10 MW installation.</p>
+        <span class="cp-val">~₹5.4 Cr tax shield / 10 MW</span>
+      </div>
+      <div class="cpolicy-card">
+        <div class="cp-icon">🤝</div>
+        <div class="cp-tag">VGF — Viability Gap Funding</div>
+        <h4>Up to 30% Capital Grant for Public Infrastructure</h4>
+        <p>Viability Gap Funding available for EV charging stations in underserved corridors — bridges the financial gap in Tier 3 cities and highway routes where demand is insufficient to attract private capital without subsidy support.</p>
+        <span class="cp-val">Up to 30% of project cost</span>
+      </div>
+    </div>
+
+    <!-- State Incentive Comparison Table -->
+    <p style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">State-Level Incentive Breakdown — Top 10 States</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Per-EV subsidies, tax waivers, and regulatory scores. Subsidy figures are per vehicle registered in that state.</p>
+    <table class="policy-table">
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>FAME-II</th>
+          <th>State Subsidy</th>
+          <th>Total / EV</th>
+          <th>GST Waiver</th>
+          <th>Road Tax Waiver</th>
+          <th>Acc. Dep.</th>
+          <th>VGF Grant</th>
+          <th>Regulatory Ease</th>
+        </tr>
+      </thead>
+      <tbody>
+        {policy_table_rows()}
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;">✦ Road tax waiver = 100% means full exemption. Regulatory ease scored 1–10 (higher = fewer barriers to CPO entry). Source: State EV Policy Notifications, MHI, MoP 2024.</p>
   </div>
 </section>
 

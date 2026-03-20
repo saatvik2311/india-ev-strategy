@@ -1,0 +1,57 @@
+{
+    "01_Overview_Strategy.md": {
+        "id": 1,
+        "title": "Executive Summary & Market Strategy",
+        "keywords": ["pareto", "strategy", "selection", "states", "mcdonsey"]
+    },
+    "02_Demand_Methodology.md": {
+        "id": 2,
+        "title": "Demand Forecasting Methodology",
+        "keywords": ["ols", "math", "polyfit", "centring", "logarithm"]
+    },
+    "03_Reality_Guardrails.md": {
+        "id": 3,
+        "title": "Reality Guardrails & Clipping",
+        "keywords": ["clip", "assam", "percentage", "failsafe", "cagr"]
+    },
+    "04_Financial_Engineering_CashFlow.md": {
+        "id": 4,
+        "title": "Financial Engineering: Unit Economics",
+        "keywords": ["capex", "opex", "cashflow", "degradation", "megawatt"]
+    },
+    "05_Financial_Engineering_IRR.md": {
+        "id": 5,
+        "title": "Financial Engineering: The IRR Engine",
+        "keywords": ["irr", "bisection", "compounded", "npv", "algorithm"]
+    },
+    "06_Regulatory_Policy.md": {
+        "id": 6,
+        "title": "The Regulatory & Policy Layer",
+        "keywords": ["subsidies", "fame", "delhi", "tax", "incentives"]
+    },
+    "07_Risk_MonteCarlo.md": {
+        "id": 7,
+        "title": "Risk Analysis: Monte Carlo",
+        "keywords": ["stochastic", "probability", "p10", "uncertainty", "gaussian"]
+    },
+    "08_Grid_Mechanics.md": {
+        "id": 8,
+        "title": "Grid Mechanics & Stress",
+        "keywords": ["grid", "stress", "discom", "load", "bess"]
+    },
+    "09_MCDA_Scoring.md": {
+        "id": 9,
+        "title": "MCDA Scoring & Ranking",
+        "keywords": ["mcda", "weighted", "normalization", "tornado", "sensitivity"]
+    },
+    "10_State_Synthesis.md": {
+        "id": 10,
+        "title": "Executive Synthesis: State Profiles",
+        "keywords": ["findings", "delhi", "rajasthan", "tiers", "winners"]
+    },
+    "11_Tech_FAQ.md": {
+        "id": 11,
+        "title": "Technical FAQ & Roadmap",
+        "keywords": ["stack", "python", "interview", "questions", "gis"]
+    }
+}

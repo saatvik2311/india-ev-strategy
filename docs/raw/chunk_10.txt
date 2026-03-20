@@ -1,0 +1,50 @@
+ Systems (BESS).
+Utility Solar Play: Rajasthan has top solar yield but low EV demand. Recommendation: Build utility-scale solar farms here and wheel power to other states.
+Do Not Touch: Bihar and Jharkhand (Low demand, low subsidies, weak grids).
+
+
+[
+  {
+    "question": "Can you explain the mathematical approach used to forecast EV demand to 2030?",
+    "context_trigger": "Demand Forecasting Math, OLS, ln(EV)",
+    "ui_label": "📈 Explain the Demand Forecasting Math"
+  },
+  {
+    "question": "Why did you use a custom Bisection Algorithm instead of standard Python financial libraries for IRR?",
+    "context_trigger": "Financial Model, Bisection Search, IRR",
+    "ui_label": "🧮 Why write a custom Bisection Algorithm?"
+  },
+  {
+    "question": "How does the model account for risk and uncertainty over the 20-year project lifespan?",
+    "context_trigger": "Risk Analysis, Monte Carlo, 1000 iterations",
+    "ui_label": "🎲 How does the Monte Carlo simulation work?"
+  },
+  {
+    "question": "How did you combine conflicting metrics like 'Megawatts' and 'Rupees' into a single ranking?",
+    "context_trigger": "MCDA Normalization, Weights, Tornado Chart",
+    "ui_label": "⚖️ Explain the MCDA Scoring Model"
+  },
+  {
+    "question": "Based on the data, what is the final executive recommendation for a $500M deployment?",
+    "context_trigger": "Final Business Recommendations, Tier 1, Delhi Caveat",
+    "ui_label": "🚀 What is the final investment recommendation?"
+  }
+]
+
+EXECUTIVE SUMMARY: EV INFRASTRUCTURE DEPLOYMENT
+TO: Investment Committee
+FROM: Quantitative Strategy Desk
+SUBJECT: Phase 1 Capital Allocation for Solar-EV Hubs (India Market)
+1. STRATEGIC OVERVIEW
+Following a comprehensive multi-criteria decision analysis (MCDA) of 20 Indian states, leveraging 5 years of historical EV data and 1,000-iteration Monte Carlo risk simulations, we have identified the optimal deployment zones for the initial infrastructure fund. The analysis synthesizes demand volume, policy incentives, solar yield (GHI), and grid stability.
+2. PHASE 1 ALLOCATION TARGETS (TIER 1)
+Capital should be immediately concentrated in Karnataka, Maharashtra, and Gujarat.
+Rationale: These states exhibit the highest composite scores (80+/100). They offer a baseline IRR exceeding 20% post-subsidy, supported by urban EV growth compounding at >35% annually. Their state-level DISCOMs possess the grid stability required to absorb 10MW charging loads without catastrophic failure.
+3. THE DELHI CAVEAT (HIGH YIELD, HIGH RISK)
+Finding: Delhi presents the highest raw demand volume (projected >150k EVs by 2030) and the most lucrative state subsidies (₹30,000/EV).
+Risk: Our Grid Mechanics engine flags Delhi as CRITICAL. The simultaneous charging load of the projected EV fleet exceeds 10% of the state's peak capacity buffer.
+Recommendation: Proceed with capital deployment in Delhi, but mandate that 20% of regional CAPEX be allocated to Battery Energy Storage Systems (BESS) to load-shift from peak to off-peak hours.
+4. PHASE 2 OBSERVATIONS
+The Sun Belt Strategy: States like Rajasthan possess exceptional Solar Irradiance (GHI) but lack the urban EV density to justify immediate hub construction. We recommend utilizing these regions for utility-scale generation, wheeling the power to high-demand corridors.
+Capital Preservation: States including Bihar and Jharkhand exhibit P10 (worst-case) Monte Carlo returns below our 10% discount rate hurdle. Defer all investment in these regions until Phase 3 (post-2030) when hardware costs normalize.
+Methodology Note: All financial projections utilize a custom bisection algorithm for absolute IRR precision and factor in the ₹15,000 FAME-II central subsidy, accelerated depreciation tax shields (40%), and state-specific GST waivers.

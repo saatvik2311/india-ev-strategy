@@ -1,0 +1,114 @@
+erages?" Your Answer: "McKinsey clients don't just ask 'How much money will I make?' They ask, 'What is the probability that I lose everything?' Using static averages is dangerous because infrastructure variables fluctuate. I wrote a Monte Carlo engine (run_monte_carlo) that runs 1,000 separate alternate realities for each state. Instead of assuming fixed numbers, I pull from Gaussian (Normal) probability distributions: Grid Tariffs (±15%): State governments frequently change electricity prices for political reasons. CAPEX (±10%): Standard engineering margin of error for construction cost overruns. Solar Irradiance (±8%): Weather and cloud cover vary year-by-year. For a state like Karnataka, the algorithm randomly mixes these variables 1,000 times and generates 1,000 different IRRs. I then calculate the percentiles: P10 (The Worst Case): 90% of the time, the project will perform better than this number. P50 (The Expected Case): The median realistic return. P90 (The Best Case): 10% of the time, everything goes perfectly and we hit this massive return. The Business Inference: If State A has an average IRR of 20% but a P10 of negative 5%, and State B has an average IRR of 18% but a P10 of 12%... State B is vastly superior for a risk-averse institutional investor. We have quantified the risk."
+Let’s slow this down and make it crystal clear, because this part is where most people bluff—and interviewers can tell.
+🔹 1. What is policy_incentives.csv really?
+Think of it as:
+👉 A table of all government rules that affect your profits
+Not math. Not code.
+Just structured policy + cost data.
+🔹 2. The EV Subsidy (₹15,000 per EV) — what does it ACTUALLY mean?
+This is the most misunderstood part.
+❗ It is NOT:
+❌ Not per year
+❌ Not per month
+❌ Not recurring
+✅ It IS:
+👉 A one-time subsidy per EV sold/purchased
+🔸 Example (FAME-II)
+Under India’s EV policy:
+Government gives ₹15,000 per EV
+Paid once, at the time of purchase
+🧠 Simple interpretation:
+If your project supports:
+1 EV → ₹15,000 subsidy
+1,000 EVs → ₹1.5 crore subsidy
+10,000 EVs → ₹15 crore subsidy
+👉 It scales with number of EVs, not time
+🔹 Why does this matter for YOUR model?
+Because your project is:
+👉 EV + solar charging infrastructure
+So:
+More EV adoption → more subsidy benefit
+That subsidy effectively reduces your initial cost
+🔹 3. State Subsidies (Delhi vs Bihar)
+Now the important twist:
+👉 Each state gives extra money on top of central subsidy
+Example:
+🧠 Combined subsidy:
+For Delhi:
+Total subsidy = 15,000 + 30,000 = ₹45,000 per EV
+For Bihar:
+Total subsidy = 15,000 + 3,000 = ₹18,000 per EV
+🔥 Business impact:
+Same project, different state:
+Delhi → huge cost reduction
+Bihar → minimal help
+👉 That’s why location matters more than people think
+🔹 4. Accelerated Depreciation (40%)
+This is not cash in hand. It’s a tax trick.
+Normal case:
+You build a ₹45 crore plant.
+You might deduct:
+₹2–3 crore per year
+With accelerated depreciation:
+You can deduct:
+40% of ₹45 crore = ₹18 crore (early)
+🧠 What this does:
+Reduces taxable profit
+So you pay less tax early
+Improves cash flow in early years
+🔥 Why investors care:
+👉 Money today is more valuable than money later
+So this boosts:
+IRR
+NPV
+🔹 5. CAPEX and OPEX (your cost structure)
+🔸 CAPEX (Capital Expenditure)
+👉 One-time cost to build
+You said:
+₹4.5 crore per MW
+So:
+10 MW plant → ₹45 crore
+Paid in Year 0
+🔸 OPEX (Operational Expenditure)
+👉 Recurring yearly cost
+₹15 lakh per MW per year
+So:
+10 MW → ₹1.5 crore per year
+Paid every year (Years 1–20)
+🔹 6. How everything connects (THIS is the real insight)
+Let’s combine everything:
+🧠 Your project economics:
+Step 1: You build plant
+Spend ₹45 crore (CAPEX)
+Step 2: Government reduces your cost
+You subtract:
+EV subsidies (central + state)
+Tax benefits (depreciation)
+👉 Effective cost becomes lower
+Step 3: You earn money
+From:
+Selling electricity (solar → grid or EV charging)
+Step 4: You pay yearly costs
+OPEX (maintenance, operations)
+🔹 7. Why this is powerful in an interview
+When you say:
+“I built a regulatory database”
+You’re really saying:
+👉 “My model understands that profit depends on policy, not just physics”
+🔹 8. The BIG business insight
+This is what impresses interviewers:
+“The best location is NOT where sunlight is highest—it’s where policy + economics are strongest.”
+🔥 Example:
+Rajasthan:
+Great sunlight ☀️
+Low subsidy 💸
+Delhi:
+Average sunlight 🌤️
+Massive subsidy 💰
+👉 Delhi might actually be more profitable
+🔹 Final one-line understanding
+👉 ₹15,000 per EV = one-time government incentive per vehicle, used to reduce your project cost indirectly via EV adoption economics
+If you want, I can now show:
+👉 exactly how this subsidy gets converted into cash flow inside your model (step-by-step in code logic) — that’s where most people get confused.
+bisection algo? explain from scratch, the economics part and everything I know discount rate logic and I know the binary search logic too, but why calc things to 0
+Good—you already know discount rates and binary search, so let’s connect them and answer the real 

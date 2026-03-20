@@ -1,0 +1,183 @@
+question:
+👉 Why are we trying to make something equal to 0?
+🔹 1. The core idea: What is IRR really?
+IRR (Internal Rate of Return) is:
+👉 The exact discount rate where your project “breaks even” in today’s money
+Not accounting profit.
+Not revenue.
+👉 Value today = 0
+🔹 2. What is NPV (quick refresher)
+= cash flow at year t
+= discount rate
+🔸 Interpretation:
+NPV > 0 → project makes money
+NPV < 0 → project loses money
+NPV = 0 → perfect break-even
+🔹 3. Why do we set NPV = 0?
+This is your key confusion—so let’s make it intuitive.
+🧠 Think like an investor
+You’re asking:
+“What return rate am I actually earning from this project?”
+Try different discount rates:
+👉 At 15%, something special happens:
+Future cash flows exactly cancel initial investment
+No extra gain, no loss
+🔥 That rate = IRR
+👉 “This project behaves like a 15% return investment”
+🔹 4. Why can’t we solve it directly?
+Because:
+👉 r is inside multiple denominators with powers
+This becomes a non-linear equation
+👉 No simple algebra solution
+🔹 5. So we use Bisection (Binary Search)
+You already know binary search—so here’s the mapping:
+🔸 Goal:
+Find r such that:
+🔸 Setup:
+lo = 0.001   # 0.1%
+hi = 5.0     # 500%
+🔸 Algorithm logic:
+Take midpoint:
+mid = (lo + hi) / 2
+Compute:
+npv = NPV(mid)
+🔸 Decision rule:
+If NPV(mid) > 0
+👉 rate too low → increase it
+👉 lo = mid
+If NPV(mid) < 0
+👉 rate too high → decrease it
+👉 hi = mid
+🔁 Repeat ~80 times
+Each time:
+👉 You cut the search space in half
+🔹 6. Why does this work? (intuition)
+Because:
+👉 NPV decreases as discount rate increases
+🔸 Visual idea:
+NPV
+ ↑
+ |       *
+ |     *
+ |   *
+ | *
+ |*
+ +--------------------→ r
+        IRR
+Left side → positive NPV
+Right side → negative NPV
+Crossing point → NPV = 0
+🔹 7. Why “zero” specifically?
+Now the real answer:
+🔥 Because IRR is a RATE, not a value
+You are not asking:
+❌ “How much profit?”
+✅ “What return rate does this project generate?”
+Setting NPV = 0 converts:
+👉 cash flows → a single percentage
+🔸 Analogy
+You invest ₹100:
+Get ₹110 → 10% return
+Get ₹150 → 50% return
+For complex projects:
+👉 Cash flows are spread over 20 years
+So you ask:
+“What constant interest rate gives me the same outcome?”
+That’s IRR.
+🔹 8. Why not just use NPV directly?
+Because:
+🔸 Example:
+👉 Which is better?
+Big company → A
+Investor → B
+🔹 9. Why interviewers LOVE bisection method
+Because you show:
+✅ You understand finance:
+IRR definition
+Time value of money
+✅ You understand algorithms:
+Binary search
+Convergence
+✅ You avoid black-box libraries
+🔹 10. Final mental model
+👉 You are “tuning” the discount rate until:
+“The project is neither good nor bad—it’s exactly fair”
+That “fair rate” = IRR
+🔹 One-line answer (interview gold)
+“We set NPV to zero because IRR is the discount rate at which the project’s future cash flows exactly offset its initial investment, converting complex multi-year cash flows into a single comparable return percentage.”
+If you want, I can show:
+full Python code for bisection IRR
+or how it fails vs numpy (NaN cases)
+or a visual step-by-step iteration table
+Those are usually the final layer interviewers test.
+ok but give me some good proper example, different possible cases
+Perfect—this is exactly what builds real intuition. Let’s go through different real-world IRR cases so you see why the bisection method behaves the way it does and what “NPV = 0” actually means in each situation.
+🔹 Case 1: Normal profitable project (standard case)
+Cash flows:
+Year 0: -100
+Year 1: +40
+Year 2: +50
+Year 3: +60
+🔸 Try different discount rates:
+🧠 What’s happening?
+At low r → future cash looks valuable → NPV positive
+At high r → future cash discounted heavily → NPV negative
+👉 Somewhere in between:
+👉 That point ≈ 25% = IRR
+🔥 Interpretation:
+“This project is equivalent to earning ~25% annual return.”
+🔹 Case 2: Bad project (always loss)
+Cash flows:
+Year 0: -100
+Year 1: +10
+Year 2: +10
+Year 3: +10
+🔸 Try rates:
+🧠 What’s happening?
+👉 NPV is always negative
+❗ Result:
+No point where NPV = 0
+IRR does not exist
+🔥 Bisection behavior:
+It keeps searching…
+But never finds a sign change (+ to -)
+👉 You must handle this case in code!
+💼 Business meaning:
+“This project destroys value no matter what.”
+🔹 Case 3: Super profitable project
+Cash flows:
+Year 0: -100
+Year 1: +200
+🔸 Try rates:
+👉 IRR = 100%
+🔥 Interpretation:
+“You doubled your money in one year.”
+🧠 Why bisection works well here:
+Clear sign change (+ → -)
+Smooth curve
+🔹 Case 4: Multiple IRRs (VERY IMPORTANT edge case)
+Cash flows:
+Year 0: -100
+Year 1: +200
+Year 2: -150
+🧠 What’s weird here?
+Cash flow changes sign twice
+This breaks normal assumptions
+🔸 Result:
+👉 You can get 2 different IRRs
+❗ Problem:
+Bisection might:
+Find one root
+Miss the other
+💼 Business meaning:
+“IRR becomes unreliable—use NPV instead.”
+🔹 Case 5: Real infrastructure project (your EV + solar case)
+Cash flows:
+Year 0: -45 crore (CAPEX)
+Year 1–20: +5 crore/year (revenue - OPEX)
+🔸 Try rates:
+👉 IRR ≈ 12%
+🔥 Interpretation:
+“This project gives ~12% annual return over 20 years.”
+🔹 Case 6: Effect of subsidies (policy impact)
+Now apply y
