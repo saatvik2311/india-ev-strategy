@@ -1,7 +1,7 @@
 pandas
 numpy
 matplotlib
-streamlit
+streamlit>=1.35.0
 openpyxl
 scipy
 groq
